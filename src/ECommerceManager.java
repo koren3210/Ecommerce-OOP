@@ -6,12 +6,20 @@ public class ECommerceManager {
     private static final int GROWTH_FACTOR = 2;
 
     // Arrays to store sellers and buyers
-    private Seller[] sellers = new Seller[INITIAL_SIZE];
-    private Buyer[] buyers = new Buyer[INITIAL_SIZE];
+    private Seller[] sellers;
+    private Buyer[] buyers;
 
     // Counters to keep track of the number of sellers and buyers
-    private int sellersCount = 0;
-    private int buyersCount = 0;
+    private int sellersCount;
+    private int buyersCount;
+
+    // Constructor to initialize arrays and counters
+    public ECommerceManager() {
+        sellers = new Seller[INITIAL_SIZE];
+        buyers = new Buyer[INITIAL_SIZE];
+        sellersCount = 0;
+        buyersCount = 0;
+    }
 
     // Method to add a new seller
     public void addSeller(String username, String password) {
@@ -35,7 +43,7 @@ public class ECommerceManager {
     public void addBuyer(String username, String password, String address) {
         // Check if the buyer already exists
         if (findBuyer(username) != null) {
-            System.out.println("Buyer already exists!");
+            System.out.println("Username" + username + "already exists!");
             return;
         }
 
@@ -172,7 +180,7 @@ public class ECommerceManager {
     }
 
     // Helper method to find a seller by username
-    private Seller findSeller(String username) {
+    public Seller findSeller(String username) {
         for (int i = 0; i < sellersCount; i++) {
             if (sellers[i].getUsername().equals(username)) {
                 return sellers[i];
@@ -182,7 +190,7 @@ public class ECommerceManager {
     }
 
     // Helper method to find a buyer by username
-    private Buyer findBuyer(String username) {
+    public Buyer findBuyer(String username) {
         for (int i = 0; i < buyersCount; i++) {
             if (buyers[i].getUserName().equals(username)) {
                 return buyers[i];

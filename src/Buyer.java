@@ -7,15 +7,15 @@ public class Buyer {
     private final int INITIAL_SIZE = 4;
     private final int GROWTH_FACTOR = 2;
 
-    private String userName;
+    private String username;
     private String password;
     private String address;
     private ShoppingCart shoppingCart;
     private ShoppingCart[] ordersHistory;
     private int ordersHistoryCount;
 
-    public Buyer(String userName, String password, String address) {
-        this.userName = userName;
+    public Buyer(String username, String password, String address) {
+        this.username = username;
         this.password = password;
         this.address = address;
         this.shoppingCart = new ShoppingCart();
@@ -25,11 +25,11 @@ public class Buyer {
 
     // Getters and setters
     public String getUserName() {
-        return userName;
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserName(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

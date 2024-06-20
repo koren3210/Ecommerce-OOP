@@ -6,13 +6,9 @@ public class ShoppingCart {
     private final int INITIAL_SIZE = 4;
     private final int GROWTH_FACTOR = 2;
 
-    // Array to store products in the cart
     private Product[] cart;
-    // Counter to keep track of the number of products in the cart
     private int productCount;
-    // Total amount of the products in the cart
     private double totalAmount;
-    // Date of purchase
     private Date purchaseDate;
 
     public ShoppingCart() {
