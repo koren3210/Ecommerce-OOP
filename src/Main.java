@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
         ECommerceManager manager = new ECommerceManager();
 
-        // demo data for debugging
+        // Demo data for debugging
         setupDemoData(manager);
 
         int choice;
@@ -31,25 +31,25 @@ public class Main {
                     continueLoop = false;
                     break;
                 case 1:
-                    addSeller(manager);
+                    handleAddSeller(manager);
                     break;
                 case 2:
-                    addBuyer(manager);
+                    handleAddBuyer(manager);
                     break;
                 case 3:
-                    addProductForSeller(manager);
+                    handleAddProductForSeller(manager);
                     break;
                 case 4:
-                    addProductForBuyer(manager);
+                    handleAddProductForBuyer(manager);
                     break;
                 case 5:
-                    orderPaymentForBuyer(manager);
+                    handleOrderPaymentForBuyer(manager);
                     break;
                 case 6:
-                    displayDetailsOfAllBuyers(manager);
+                    handleDisplayDetailsOfAllBuyers(manager);
                     break;
                 case 7:
-                    displayDetailsOfAllSellers(manager);
+                    handleDisplayDetailsOfAllSellers(manager);
                     break;
                 default:
                     System.out.println("Invalid choice!");
@@ -64,10 +64,10 @@ public class Main {
         manager.addSeller("seller1", "password1");
         manager.addSeller("seller2", "password2");
 
-        // Adding buyers
-        manager.addBuyer("buyer1", "password1", "123 New york, City A");
-        manager.addBuyer("buyer2", "password2", "456 Tel Aviv, City B");
-        manager.addBuyer("buyer3", "password3", "456 Thailand, City B");
+        // Adding buyers with Address
+        manager.addBuyer("buyer1", "password1", new Address("123 New York", "City A", "State A", "10001", "Country A"));
+        manager.addBuyer("buyer2", "password2", new Address("456 Tel Aviv", "City B", "State B", "20002", "Country B"));
+        manager.addBuyer("buyer3", "password3", new Address("789 Thailand", "City C", "State C", "30003", "Country C"));
 
         // Adding products for sellers
         manager.addProductForSeller("seller1", "Product A", 10.99);
@@ -81,7 +81,7 @@ public class Main {
         manager.addProductForBuyerCart("buyer2", "Product B", "seller1");
     }
 
-    private static void addSeller(ECommerceManager manager) {
+    private static void handleAddSeller(ECommerceManager manager) {
         boolean usernameExists;
 
         do {
@@ -91,19 +91,23 @@ public class Main {
             if (manager.findSeller(sellerUsername) != null) {
                 System.out
                         .println("Username " + sellerUsername + " already exists! Please choose a different username.");
-                usernameExists = true; // set flag to true to repeat the loop
+                usernameExists = true; // Set flag to true to repeat the loop
             } else {
-                usernameExists = false; // set flag to false to exit the loop
+                usernameExists = false; // Set flag to false to exit the loop
                 System.out.print("Enter seller's password: ");
                 String sellerPassword = scanner.next();
-                manager.addSeller(sellerUsername, sellerPassword);
+                boolean success = manager.addSeller(sellerUsername, sellerPassword);
+                if (success) {
+                    System.out.println("Seller added successfully!");
+                } else {
+                    System.out.println("Failed to add seller. Please try again.");
+                }
             }
         } while (usernameExists);
-
     }
 
-    private static void addBuyer(ECommerceManager manager) {
-        boolean usernameExists = false;
+    private static void handleAddBuyer(ECommerceManager manager) {
+        boolean usernameExists;
 
         do {
             System.out.print("Enter buyer's username: ");
@@ -116,54 +120,131 @@ public class Main {
                 usernameExists = false;
                 System.out.print("Enter buyer's password: ");
                 String buyerPassword = scanner.next();
-                System.out.print("Enter buyer's address: ");
-                scanner.nextLine();
-                String buyerAddress = scanner.nextLine();
-                manager.addBuyer(buyerUsername, buyerPassword, buyerAddress);
+
+                // Collect address details
+                System.out.print("Enter buyer's street: ");
+                scanner.nextLine(); // Consume the newline
+                String street = scanner.nextLine();
+                System.out.print("Enter buyer's city: ");
+                String city = scanner.nextLine();
+                System.out.print("Enter buyer's state: ");
+                String state = scanner.nextLine();
+                System.out.print("Enter buyer's postal code: ");
+                String postalCode = scanner.nextLine();
+                System.out.print("Enter buyer's country: ");
+                String country = scanner.nextLine();
+
+                // Create Address object
+                Address address = new Address(street, city, state, postalCode, country);
+
+                // Add buyer with the created Address object
+                boolean success = manager.addBuyer(buyerUsername, buyerPassword, address);
+                if (success) {
+                    System.out.println("Buyer added successfully!");
+                } else {
+                    System.out.println("Failed to add buyer. Please try again.");
+                }
             }
         } while (usernameExists);
     }
 
-    private static void addProductForSeller(ECommerceManager manager) {
-        System.out.print("Enter seller's username: ");
-        String sellerName = scanner.next();
+    private static void handleAddProductForSeller(ECommerceManager manager) {
+        String sellerName;
+        boolean sellerExists;
+
+        do {
+            System.out.print("Enter seller's username (or press 'x' to return to menu): ");
+            sellerName = scanner.next();
+
+            if (sellerName.equalsIgnoreCase("x")) {
+                return; // Return to menu
+            }
+
+            sellerExists = manager.findSeller(sellerName) != null;
+            if (!sellerExists) {
+                System.out.println("Seller not found! Try again or press 'x' to return to menu.");
+            }
+        } while (!sellerExists);
+
         System.out.print("Enter product name: ");
         String productName = scanner.next();
         System.out.print("Enter product price: ");
         double productPrice = scanner.nextDouble();
-        manager.addProductForSeller(sellerName, productName, productPrice);
+
+        boolean success = manager.addProductForSeller(sellerName, productName, productPrice);
+        if (success) {
+            System.out.println("Product added successfully for seller: " + sellerName);
+        } else {
+            System.out.println("Failed to add product for seller. Please try again.");
+        }
     }
 
-    private static void addProductForBuyer(ECommerceManager manager) {
-        System.out.print("Enter buyer's username: ");
-        String buyerUsername = scanner.next();
+    private static void handleAddProductForBuyer(ECommerceManager manager) {
+        String buyerUsername;
+        boolean buyerExists;
+
+        do {
+            System.out.print("Enter buyer's username (or press 'x' to return to menu): ");
+            buyerUsername = scanner.next();
+
+            if (buyerUsername.equalsIgnoreCase("x")) {
+                return; // Return to menu
+            }
+
+            buyerExists = manager.findBuyer(buyerUsername) != null;
+            if (!buyerExists) {
+                System.out.println("Buyer not found! Try again or press 'x' to return to menu.");
+            }
+        } while (!buyerExists);
+
         System.out.print("Enter seller's username: ");
         String sellerNameForBuyer = scanner.next();
+
+        boolean sellerExists = manager.findSeller(sellerNameForBuyer) != null;
+        if (!sellerExists) {
+            System.out.println("Seller not found! Returning to menu.");
+            return; // Return to menu if seller not found, allowing to watch seller's list again
+        }
+
         manager.displaySellerProducts(sellerNameForBuyer);
+
         System.out.print("Enter product name: ");
         scanner.nextLine();
         String productNameForBuyer = scanner.nextLine();
-        manager.addProductForBuyerCart(buyerUsername, productNameForBuyer, sellerNameForBuyer);
+
+        boolean success = manager.addProductForBuyerCart(buyerUsername, productNameForBuyer, sellerNameForBuyer);
+        if (success) {
+            System.out.println("Product added to cart successfully for buyer: " + buyerUsername);
+        } else {
+            System.out.println("Failed to add product to cart. Please check product availability or try again.");
+        }
     }
 
-    private static void orderPaymentForBuyer(ECommerceManager manager) {
+    private static void handleOrderPaymentForBuyer(ECommerceManager manager) {
         System.out.print("Enter buyer's username for payment: ");
         String buyerUsernameForPayment = scanner.next();
-        if (!manager.displayCurrentShoppingCart(buyerUsernameForPayment)) {
+
+        boolean hasItems = manager.displayCurrentShoppingCart(buyerUsernameForPayment);
+        if (!hasItems) {
             System.out.println("No items in the cart. Returning to the menu.");
             return;
         }
 
-        System.out.print("Are you want to pay for this cart? (y/n)");
+        System.out.print("Do you want to pay for this cart? (y/n): ");
         String paymentDecision = scanner.next();
-        manager.paymentForShoppingCart(paymentDecision, buyerUsernameForPayment);
+        boolean success = manager.paymentForShoppingCart(paymentDecision, buyerUsernameForPayment);
+        if (success) {
+            System.out.println("Payment processed successfully.");
+        } else {
+            System.out.println("Failed to process payment. Please try again.");
+        }
     }
 
-    private static void displayDetailsOfAllBuyers(ECommerceManager manager) {
+    private static void handleDisplayDetailsOfAllBuyers(ECommerceManager manager) {
         manager.displayBuyers();
     }
 
-    private static void displayDetailsOfAllSellers(ECommerceManager manager) {
+    private static void handleDisplayDetailsOfAllSellers(ECommerceManager manager) {
         manager.displaySellers();
     }
 }

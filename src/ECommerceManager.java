@@ -22,11 +22,10 @@ public class ECommerceManager {
     }
 
     // Method to add a new seller
-    public void addSeller(String username, String password) {
+    public boolean addSeller(String username, String password) {
         // Check if the seller already exists
         if (findSeller(username) != null) {
-            System.out.println("Seller already exists!");
-            return;
+            return false; // Seller already exists
         }
 
         // Expand the sellers array if it's full
@@ -36,15 +35,14 @@ public class ECommerceManager {
 
         // Add the new seller and increment the seller count
         sellers[sellersCount++] = new Seller(username, password);
-        System.out.println("Seller added successfully!");
+        return true;
     }
 
     // Method to add a new buyer
-    public void addBuyer(String username, String password, String address) {
+    public boolean addBuyer(String username, String password, Address address) {
         // Check if the buyer already exists
         if (findBuyer(username) != null) {
-            System.out.println("Username" + username + "already exists!");
-            return;
+            return false; // Buyer already exists
         }
 
         // Expand the buyers array if it's full
@@ -54,7 +52,7 @@ public class ECommerceManager {
 
         // Add the new buyer and increment the buyer count
         buyers[buyersCount++] = new Buyer(username, password, address);
-        System.out.println("Buyer added successfully!");
+        return true;
     }
 
     // Method to display products for a specific seller
@@ -77,59 +75,62 @@ public class ECommerceManager {
         }
     }
 
-    // Method to add a product to a buyer's cart from a specific seller
-    public void addProductForBuyerCart(String buyerUsername, String productName, String sellerNameForBuyer) {
-        // Find the buyer and seller by their usernames
-        Buyer buyer = findBuyer(buyerUsername);
-        if (buyer == null) {
-            System.out.println("Buyer not found!");
-            return;
-        }
-
-        Seller seller = findSeller(sellerNameForBuyer);
+    // Method to find a product by name for a specific seller
+    public Product findSellerProduct(String sellerName, String productName) {
+        Seller seller = findSeller(sellerName);
         if (seller == null) {
             System.out.println("Seller not found!");
-            return;
+            return null;
         }
 
         Product[] sellerProducts = seller.getProducts();
         if (sellerProducts == null || sellerProducts.length == 0) {
             System.out.println("No products available for the specified seller!");
-            return;
+            return null;
         }
 
-        // Check if the product with the given name exists in the seller's products
-        Product productToAdd = null;
         for (Product product : sellerProducts) {
             if (product != null && product.getName().equals(productName)) {
-                productToAdd = product;
-                break;
+                return product;
             }
         }
 
-        // If the product is not found, print a message and return
+        System.out.println("Product '" + productName + "' not found for seller: " + sellerName);
+        return null;
+    }
+
+    // Method to add a product to a buyer's cart from a specific seller
+    public boolean addProductForBuyerCart(String buyerUsername, String productName, String sellerNameForBuyer) {
+        // Find the buyer by their username
+        Buyer buyer = findBuyer(buyerUsername);
+        if (buyer == null) {
+            return false; // Buyer not found
+        }
+
+        // Find the product from the seller
+        Product productToAdd = findSellerProduct(sellerNameForBuyer, productName);
+
+        // If the product is not found, return
         if (productToAdd == null) {
-            System.out.println("Product '" + productName + "' not found for seller: " + sellerNameForBuyer);
-            return;
+            return false; // Product not found
         }
 
         // Add the product to the buyer's shopping cart
         buyer.addToShoppingCart(productToAdd);
-        System.out.println("Product added to cart successfully for buyer: " + buyerUsername);
+        return true;
     }
 
     // Method to add a product for a specific seller
-    public void addProductForSeller(String sellerUsername, String productName, double price) {
+    public boolean addProductForSeller(String sellerUsername, String productName, double price) {
         // Find the seller by username
         Seller seller = findSeller(sellerUsername);
         if (seller == null) {
-            System.out.println("Seller not found!");
-            return;
+            return false; // Seller not found
         }
 
         // Add the new product to the seller's product list
         seller.addProduct(new Product(productName, price, sellerUsername));
-        System.out.println("Product added successfully for seller: " + sellerUsername);
+        return true;
     }
 
     // Method to display the current shopping cart of a buyer
@@ -137,8 +138,7 @@ public class ECommerceManager {
         // Find the buyer by username
         Buyer currentBuyer = findBuyer(buyerNameForPayment);
         if (currentBuyer == null) {
-            System.out.println("Buyer not found!");
-            return false;
+            return false; // Buyer not found
         }
 
         ShoppingCart currentCart = currentBuyer.getShoppingCart();
@@ -164,19 +164,20 @@ public class ECommerceManager {
     }
 
     // Method to handle payment for the shopping cart
-    public void paymentForShoppingCart(String paymentDecision, String buyerNameForPayment) {
+    public boolean paymentForShoppingCart(String paymentDecision, String buyerNameForPayment) {
         paymentDecision = paymentDecision.toLowerCase();
         Buyer currentBuyer = findBuyer(buyerNameForPayment);
 
         // If the payment decision is 'n', print a message and return
         if (paymentDecision.equals("n")) {
             System.out.println("Payment has not been made");
-            return;
+            return false;
         } else if (paymentDecision.equals("y")) {
             // If the payment decision is 'y', process the payment
             currentBuyer.paymentForShoppingCart();
-            System.out.println("Successful payment\n");
+            return true;
         }
+        return false;
     }
 
     // Helper method to find a seller by username
@@ -250,7 +251,7 @@ public class ECommerceManager {
             return;
         }
         for (int i = 0; i < sellersCount; i++) {
-            System.out.println(i + 1 + "." + "Seller name:" + sellers[i].getUsername());
+            System.out.println(i + 1 + "." + "Seller name: " + sellers[i].getUsername());
             System.out.println("Products:");
             for (Product product : sellers[i].getProducts()) {
                 if (product != null) {

@@ -9,12 +9,13 @@ public class Buyer {
 
     private String username;
     private String password;
-    private String address;
+    private Address address;
     private ShoppingCart shoppingCart;
     private ShoppingCart[] ordersHistory;
     private int ordersHistoryCount;
 
-    public Buyer(String username, String password, String address) {
+    // Constructor updated to accept Address object
+    public Buyer(String username, String password, Address address) {
         this.username = username;
         this.password = password;
         this.address = address;
@@ -40,11 +41,11 @@ public class Buyer {
         this.password = password;
     }
 
-    public String getAddress() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 
