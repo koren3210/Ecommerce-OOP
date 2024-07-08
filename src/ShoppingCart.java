@@ -55,7 +55,16 @@ public class ShoppingCart {
             expandArray(); // Expand the array if it's full
         }
         cart[productCount++] = product; // Add the product to the cart
-        totalAmount += product.getPrice(); // Update the total amount
+        totalAmount += product.getTotalCost(); // Update the total amount
+    }
+
+    // Method to copy items from another cart
+    public void copyFrom(ShoppingCart otherCart) {
+        this.clearCart(); // Clear the current cart
+        for (int i = 0; i < otherCart.getCartSize(); i++) {
+            this.addProduct(otherCart.getCart()[i]);
+        }
+        this.purchaseDate = otherCart.getPurchaseDate();
     }
 
     // Helper method to expand the size of the array

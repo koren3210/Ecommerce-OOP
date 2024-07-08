@@ -1,4 +1,7 @@
 import java.util.Arrays;
+import java.util.List;
+
+import enums.Category;
 
 public class ECommerceManager {
     // Constants for initial size of the arrays and the growth factor for resizing
@@ -121,15 +124,24 @@ public class ECommerceManager {
     }
 
     // Method to add a product for a specific seller
-    public boolean addProductForSeller(String sellerUsername, String productName, double price) {
+    public boolean addProductForSeller(String sellerUsername, String productName, double price, Category category,
+            boolean isSpecial, double packagingCost) {
         // Find the seller by username
         Seller seller = findSeller(sellerUsername);
         if (seller == null) {
             return false; // Seller not found
         }
 
+        // Create the product based on whether it's special or standard
+        Product product;
+        if (isSpecial) {
+            product = new SpecialProduct(productName, price, sellerUsername, category, packagingCost);
+        } else {
+            product = new StandardProduct(productName, price, sellerUsername, category);
+        }
+
         // Add the new product to the seller's product list
-        seller.addProduct(new Product(productName, price, sellerUsername));
+        seller.addProduct(product);
         return true;
     }
 
@@ -155,7 +167,7 @@ public class ECommerceManager {
             System.out.println("Products in Cart:");
             for (Product product : products) {
                 if (product != null) {
-                    System.out.println("\t" + product);
+                    System.out.println("\t" + product.getDetails());
                 }
             }
             System.out.println("Total Amount: $" + totalAmount);
@@ -193,7 +205,7 @@ public class ECommerceManager {
     // Helper method to find a buyer by username
     public Buyer findBuyer(String username) {
         for (int i = 0; i < buyersCount; i++) {
-            if (buyers[i].getUserName().equals(username)) {
+            if (buyers[i].getUsername().equals(username)) {
                 return buyers[i];
             }
         }
@@ -207,7 +219,7 @@ public class ECommerceManager {
             return;
         }
         for (int i = 0; i < buyersCount; i++) {
-            System.out.println(i + 1 + "." + "Buyer name: " + buyers[i].getUserName());
+            System.out.println(i + 1 + "." + "Buyer name: " + buyers[i].getUsername());
             System.out.println("Address: " + buyers[i].getAddress());
             System.out.println("Current Shopping Cart:");
 
@@ -224,7 +236,7 @@ public class ECommerceManager {
             } else {
                 for (Product product : products) {
                     if (product != null) {
-                        System.out.println("\t" + product);
+                        System.out.println("\t" + product.getDetails());
                     }
                 }
             }
@@ -255,8 +267,37 @@ public class ECommerceManager {
             System.out.println("Products:");
             for (Product product : sellers[i].getProducts()) {
                 if (product != null) {
-                    System.out.println("\t" + product);
+                    System.out.println("\t" + product.getDetails());
                 }
+            }
+        }
+    }
+
+    // Method to display product by category
+    public void displayProductsByCategory(Category category) {
+        System.out.println("Products category: " + category);
+        for (Seller seller : sellers) {
+            if (seller != null) {
+                for (Product product : seller.getProducts()) {
+                    if (product != null) {
+                        if (product.getCategory() == category) {
+                            System.out.println(product.getDetails());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Method to create a new cart from history
+    public void createNewCartFromHistory(User buyer, int historyIndex) {
+        if (buyer instanceof Buyer) {
+            Buyer buyerObj = (Buyer) buyer;
+            List<ShoppingCart> history = buyerObj.getCartHistory();
+            if (historyIndex >= 0 && historyIndex < history.size()) {
+                ShoppingCart selectedCart = history.get(historyIndex);
+                ShoppingCart currentCart = buyerObj.getShoppingCart();
+                currentCart.copyFrom(selectedCart);
             }
         }
     }

@@ -1,4 +1,9 @@
+// students: 
+//#1: name: Koren Turgeman , ID: 209060284, teacher: Keren Kalif
+//#2: name: Nadav Kozak , ID: 319096012, teacher: Keren Kalif
+
 import java.util.Scanner;
+import enums.Category;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
@@ -23,11 +28,13 @@ public class Main {
             System.out.println("5. Order Payment for Buyer");
             System.out.println("6. Display Details of All Buyers");
             System.out.println("7. Display Details of All Sellers");
+            System.out.println("8. Display Products by category");
             System.out.print("Enter your choice: ");
             choice = scanner.nextInt(); // Getting the user's choice
 
             switch (choice) {
                 case 0:
+                    System.out.println("Exiting...");
                     continueLoop = false;
                     break;
                 case 1:
@@ -51,6 +58,9 @@ public class Main {
                 case 7:
                     handleDisplayDetailsOfAllSellers(manager);
                     break;
+                case 8:
+                    handleDisplayProductByCategory(manager);
+                    break;
                 default:
                     System.out.println("Invalid choice!");
             }
@@ -65,20 +75,26 @@ public class Main {
         manager.addSeller("seller2", "password2");
 
         // Adding buyers with Address
-        manager.addBuyer("buyer1", "password1", new Address("123 New York", "City A", "State A", "10001", "Country A"));
-        manager.addBuyer("buyer2", "password2", new Address("456 Tel Aviv", "City B", "State B", "20002", "Country B"));
-        manager.addBuyer("buyer3", "password3", new Address("789 Thailand", "City C", "State C", "30003", "Country C"));
+        manager.addBuyer("buyer1", "password1", new Address("123 street", "City A", "State A", "10001", "Country A"));
+        manager.addBuyer("buyer2", "password2", new Address("456 street", "City B", "State B", "20002", "Country B"));
+        manager.addBuyer("buyer3", "password3", new Address("789 street", "City C", "State C", "30003", "Country C"));
 
         // Adding products for sellers
-        manager.addProductForSeller("seller1", "Product A", 10.99);
-        manager.addProductForSeller("seller1", "Product B", 15.49);
-        manager.addProductForSeller("seller2", "Product C", 20.99);
-        manager.addProductForSeller("seller2", "Product D", 5.99);
+        // Adding products without special packaging
+        manager.addProductForSeller("seller1", "Product A", 10.99, Category.CHILDREN, false, 0.0);
+        manager.addProductForSeller("seller2", "Product B", 15.49, Category.CLOTHING, false, 0.0);
+
+        // Adding products with special packaging
+        manager.addProductForSeller("seller2", "Product C", 20.00, Category.ELECTRONICS, true, 3.99);
+        manager.addProductForSeller("seller2", "Product D", 5.99, Category.OFFICE, true, 4.0);
 
         // Adding products for buyers (adding to cart)
         manager.addProductForBuyerCart("buyer1", "Product A", "seller1");
         manager.addProductForBuyerCart("buyer1", "Product C", "seller2");
-        manager.addProductForBuyerCart("buyer2", "Product B", "seller1");
+        manager.addProductForBuyerCart("buyer2", "Product B", "seller2");
+        manager.addProductForBuyerCart("buyer2", "Product C", "seller2");
+        manager.addProductForBuyerCart("buyer2", "Product D", "seller2");
+
     }
 
     private static void handleAddSeller(ECommerceManager manager) {
@@ -170,8 +186,20 @@ public class Main {
         String productName = scanner.next();
         System.out.print("Enter product price: ");
         double productPrice = scanner.nextDouble();
+        System.out.print("Enter product category (CHILDREN, ELECTRONICS, OFFICE, CLOTHING): ");
+        Category category = Category.valueOf(scanner.next().toUpperCase());
 
-        boolean success = manager.addProductForSeller(sellerName, productName, productPrice);
+        System.out.print("Does this product require special packaging? (yes/no): ");
+        boolean isSpecial = scanner.next().equalsIgnoreCase("yes");
+        double packagingCost = 0.0;
+
+        if (isSpecial) {
+            System.out.print("Enter packaging cost: ");
+            packagingCost = scanner.nextDouble();
+        }
+
+        boolean success = manager.addProductForSeller(sellerName, productName, productPrice, category, isSpecial,
+                packagingCost);
         if (success) {
             System.out.println("Product added successfully for seller: " + sellerName);
         } else {
@@ -247,4 +275,40 @@ public class Main {
     private static void handleDisplayDetailsOfAllSellers(ECommerceManager manager) {
         manager.displaySellers();
     }
+
+    private static void handleDisplayProductByCategory(ECommerceManager manager) {
+        System.out.print("Enter product category (CHILDREN, ELECTRONICS, OFFICE, CLOTHING): ");
+        Category category = Category.valueOf(scanner.next().toUpperCase());
+        manager.displayProductsByCategory(category);
+    }
+
+    private static void handleCreateNewCartFromHistory(ECommerceManager manager) {
+        System.out.println("Enter Buyer Username:");
+        String buyerUsername = scanner.nextLine();
+        Buyer buyer = manager.findBuyerByUsername(buyerUsername);
+        if (buyer != null) {
+            if (buyer.getShoppingCart().getCartSize() > 0) {
+                System.out.println("Current cart is not empty. Do you want to replace it? (yes/no)");
+                String response = scanner.nextLine();
+                if (response.equalsIgnoreCase("yes")) {
+                    System.out.println("Enter the index of the history cart to use:");
+                    int historyIndex = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    manager.createNewCartFromHistory(buyer, historyIndex);
+                    System.out.println("New cart created from history.");
+                } else {
+                    System.out.println("Current cart was not replaced.");
+                }
+            } else {
+                System.out.println("Current cart is empty. Enter the index of the history cart to use:");
+                int historyIndex = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
+                manager.createNewCartFromHistory(buyer, historyIndex);
+                System.out.println("New cart created from history.");
+            }
+        } else {
+            System.out.println("Buyer not found.");
+        }
+    }
+}
 }

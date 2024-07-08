@@ -1,12 +1,25 @@
-public class Product {
-    private String name; // Name of the product
-    private double price; // Price of the product
-    private String sellerName; // Name of the seller
+import enums.Category;
 
-    public Product(String name, double price, String sellerName) {
+public abstract class Product {
+    private static int nextSerialNumber = 1;
+
+    protected int serialNumber;
+    protected String name; // Name of the product
+    protected double price; // Price of the product
+    protected String sellerName; // Name of the seller
+    protected Category category;
+
+    public Product(String name, double price, String sellerName, Category category) {
+        this.serialNumber = nextSerialNumber++;
         this.name = name;
         this.price = price;
         this.sellerName = sellerName;
+        this.category = category;
+    }
+
+    // Getter method to retrieve the serial number
+    public int getSerialNumber() {
+        return serialNumber;
     }
 
     // Getter method to retrieve the product name
@@ -24,11 +37,21 @@ public class Product {
         return sellerName;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public abstract String getDetails();
+
+    public abstract double getTotalCost();
+
     // Override toString method to provide a string representation of the product
     @Override
     public String toString() {
-        return "Product name: " + name +
+        return "ID: " + serialNumber +
+                ", Product name: " + name +
                 ", Price: " + price + "$" +
-                ", Seller Name: " + sellerName;
+                ", Seller Name: " + sellerName +
+                ", Category: " + category;
     }
 }

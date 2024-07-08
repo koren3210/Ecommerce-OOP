@@ -1,28 +1,16 @@
 import java.util.Arrays;
 
-public class Seller {
-    private String username; // Username of the seller
-    private String password; // Password of the seller
+public class Seller extends User {
     private Product[] products; // Array to store the seller's products
     private int productCount; // Counter to keep track of the number of products
+
     private static final int INITIAL_SIZE = 4; // Initial size of the products array
     private static final int GROWTH_FACTOR = 2; // Growth factor for resizing the array
 
     public Seller(String username, String password) {
-        this.username = username;
-        this.password = password;
+        super(username, password);
         this.products = new Product[INITIAL_SIZE]; // Initialize products array with initial size
         this.productCount = 0; // Initialize product count
-    }
-
-    // Getter method for username
-    public String getUsername() {
-        return username;
-    }
-
-    // Getter method for password
-    public String getPassword() {
-        return password;
     }
 
     // Method to add a product
