@@ -1,5 +1,10 @@
+package users;
+
 import java.util.Arrays;
 import java.util.Date;
+
+import products.Product;
+import products.ShoppingCart;
 
 public class Buyer extends User {
     // Constants for initial size of orders history array and the growth factor for
@@ -33,6 +38,10 @@ public class Buyer extends User {
         return shoppingCart;
     }
 
+    public void setShoppingCart(ShoppingCart newCart) {
+        this.shoppingCart = newCart;
+    }
+
     // Method to add a product to the shopping cart
     public void addToShoppingCart(Product product) {
         shoppingCart.addProduct(product);
@@ -41,33 +50,23 @@ public class Buyer extends User {
     // Method to process payment for the shopping cart
     public void paymentForShoppingCart() {
         Date purchaseDate = new Date();
-        ShoppingCart purchasedCart = new ShoppingCart(); // Create a new ShoppingCart object
-        Product[] cartProducts = shoppingCart.getCart(); // Get the products from the current cart
+        ShoppingCart purchasedCart = new ShoppingCart();
+        Product[] cartProducts = shoppingCart.getCart();
         for (Product product : cartProducts) {
-            if (product instanceof SpecialProduct) {
-                SpecialProduct specialProduct = (SpecialProduct) product;
-                purchasedCart.addProduct(new SpecialProduct(
-                        specialProduct.getName(),
-                        specialProduct.getPrice(),
-                        specialProduct.getSellerName(),
-                        specialProduct.getCategory(),
-                        specialProduct.getPackagingCost()));
-            } else if (product instanceof StandardProduct) {
-                StandardProduct standardProduct = (StandardProduct) product;
-                purchasedCart.addProduct(new StandardProduct(
-                        standardProduct.getName(),
-                        standardProduct.getPrice(),
-                        standardProduct.getSellerName(),
-                        standardProduct.getCategory()));
+            if (product != null) {
+                try {
+                    purchasedCart.addProduct((Product) product.clone());
+                } catch (CloneNotSupportedException e) {
+                    System.out.println("Failed to clone the product: " + e.getMessage());
+                }
             }
-            purchasedCart.setPurchaseDate(purchaseDate); // Set the purchase date
-            // Expand the orders history array if needed
-            if (ordersHistoryCount == ordersHistory.length) {
-                expandArray();
-            }
-            ordersHistory[ordersHistoryCount++] = purchasedCart; // Store the ShoppingCart object in orders history
-            shoppingCart.clearCart(); // Clear the current shopping cart
         }
+        purchasedCart.setPurchaseDate(purchaseDate);
+        if (ordersHistoryCount == ordersHistory.length) {
+            expandArray();
+        }
+        ordersHistory[ordersHistoryCount++] = purchasedCart;
+        shoppingCart.clearCart();
     }
 
     // Method to retrieve the orders history

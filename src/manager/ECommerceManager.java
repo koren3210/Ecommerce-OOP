@@ -1,7 +1,17 @@
-import java.util.Arrays;
-import java.util.List;
+package manager;
 
+import java.util.Arrays;
+
+import comparators.CompareBuyerByName;
+import comparators.CompareSellerByProductCount;
 import enums.Category;
+import products.Product;
+import products.ShoppingCart;
+import products.SpecialProduct;
+import products.StandardProduct;
+import users.Address;
+import users.Buyer;
+import users.Seller;
 
 public class ECommerceManager {
     // Constants for initial size of the arrays and the growth factor for resizing
@@ -212,27 +222,30 @@ public class ECommerceManager {
         return null;
     }
 
-    // Method to display all buyers
+    // Method for displaying buyers --- sorted by buyer names
     public void displayBuyers() {
         if (buyersCount == 0) {
             System.out.println("No existing Buyers!");
             return;
         }
-        for (int i = 0; i < buyersCount; i++) {
-            System.out.println(i + 1 + "." + "Buyer name: " + buyers[i].getUsername());
-            System.out.println("Address: " + buyers[i].getAddress());
+
+        Buyer[] sortedBuyers = Arrays.copyOf(buyers, buyersCount);
+        Arrays.sort(sortedBuyers, new CompareBuyerByName());
+
+        for (int i = 0; i < sortedBuyers.length; i++) {
+            System.out.println((i + 1) + ". Buyer name: " + sortedBuyers[i].getUsername());
+            System.out.println("Address: " + sortedBuyers[i].getAddress());
             System.out.println("Current Shopping Cart:");
 
-            ShoppingCart cart = buyers[i].getShoppingCart();
+            ShoppingCart cart = sortedBuyers[i].getShoppingCart();
             int cartSize = cart.getCartSize();
             Product[] products = cart.getCart();
             double totalAmount = cart.getTotalAmount();
-            ShoppingCart[] ordersHistory = buyers[i].getOrdersHistory();
-            int ordersHistoryCount = buyers[i].getOrderHistoryCount();
+            ShoppingCart[] ordersHistory = sortedBuyers[i].getOrdersHistory();
+            int ordersHistoryCount = sortedBuyers[i].getOrderHistoryCount();
 
-            // Print the products in the cart
             if (cartSize == 0) {
-                System.out.println("Cart is Empty!");
+                System.out.println("\tCart is Empty!");
             } else {
                 for (Product product : products) {
                     if (product != null) {
@@ -240,32 +253,36 @@ public class ECommerceManager {
                     }
                 }
             }
-            System.out.println("Total Amount: $" + totalAmount);
+            System.out.println(String.format("\tTotal Amount: $%.2f", totalAmount));
 
-            // Print the order history
             System.out.println("Orders history: ");
             if (ordersHistoryCount == 0) {
-                System.out.println("No orders history..");
+                System.out.println("\tNo orders history..\n");
             } else {
-                for (ShoppingCart shoppingCart : ordersHistory) {
-                    if (shoppingCart != null) {
-                        System.out.println("\t" + shoppingCart);
+                for (int j = 0; j < ordersHistoryCount; j++) {
+                    if (ordersHistory[j] != null) {
+                        System.out.println("\tOrder " + (j + 1) + ":");
+                        System.out.println(ordersHistory[j]);
                     }
                 }
             }
         }
     }
 
-    // Method to display all sellers
+    // Method for displaying buyers --- sorted by sellers products Count
     public void displaySellers() {
         if (sellersCount == 0) {
             System.out.println("No existing Sellers!");
             return;
         }
-        for (int i = 0; i < sellersCount; i++) {
-            System.out.println(i + 1 + "." + "Seller name: " + sellers[i].getUsername());
+
+        Seller[] sortedSellers = Arrays.copyOf(sellers, sellersCount);
+        Arrays.sort(sortedSellers, new CompareSellerByProductCount());
+
+        for (int i = 0; i < sortedSellers.length; i++) {
+            System.out.println((i + 1) + ". Seller name: " + sortedSellers[i].getUsername());
             System.out.println("Products:");
-            for (Product product : sellers[i].getProducts()) {
+            for (Product product : sortedSellers[i].getProducts()) {
                 if (product != null) {
                     System.out.println("\t" + product.getDetails());
                 }
@@ -290,16 +307,48 @@ public class ECommerceManager {
     }
 
     // Method to create a new cart from history
-    public void createNewCartFromHistory(User buyer, int historyIndex) {
-        if (buyer instanceof Buyer) {
-            Buyer buyerObj = (Buyer) buyer;
-            List<ShoppingCart> history = buyerObj.getCartHistory();
-            if (historyIndex >= 0 && historyIndex < history.size()) {
-                ShoppingCart selectedCart = history.get(historyIndex);
-                ShoppingCart currentCart = buyerObj.getShoppingCart();
-                currentCart.copyFrom(selectedCart);
+    public void createNewCartFromHistory(Buyer buyer, int historyIndex) {
+        ShoppingCart[] history = buyer.getOrdersHistory();
+        if (historyIndex >= 0 && historyIndex < history.length) {
+            try {
+                ShoppingCart selectedCart = (ShoppingCart) history[historyIndex].clone();
+                buyer.setShoppingCart(selectedCart);
+                System.out.println("New cart created from history.");
+            } catch (CloneNotSupportedException e) {
+                System.out.println("Failed to clone the shopping cart: " + e.getMessage());
             }
+        } else {
+            System.out.println("Invalid history index.");
         }
+    }
+
+    // Methd to display buyers orders history
+    public void displayBuyerOrderHistory(String buyerUsername) {
+        Buyer buyer = findBuyer(buyerUsername);
+        if (buyer != null) {
+            ShoppingCart[] orderHistory = buyer.getOrdersHistory();
+            int orderHistoryCount = buyer.getOrderHistoryCount();
+            if (orderHistoryCount == 0) {
+                System.out.println("No orders history..");
+            } else {
+                for (int i = 0; i < orderHistoryCount; i++) {
+                    if (orderHistory[i] != null) {
+                        System.out.println((i + 1) + ". " + orderHistory[i]);
+                    }
+                }
+            }
+        } else {
+            System.out.println("Buyer not found.");
+        }
+    }
+
+    // Method to get all products of seller
+    public Product[] getSellerProducts(String sellerName) {
+        Seller seller = findSeller(sellerName);
+        if (seller != null) {
+            return seller.getProducts();
+        }
+        return null;
     }
 
     // Helper method to expand the size of an array

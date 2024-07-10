@@ -1,4 +1,8 @@
+package users;
+
 import java.util.Arrays;
+
+import products.Product;
 
 public class Seller extends User {
     private Product[] products; // Array to store the seller's products
@@ -24,6 +28,11 @@ public class Seller extends User {
     // Getter method to retrieve the products array
     public Product[] getProducts() {
         return products;
+    }
+
+    // Getter method to retrieve the products count
+    public int getProductCount() {
+        return productCount;
     }
 
     // Helper method to expand the size of the array

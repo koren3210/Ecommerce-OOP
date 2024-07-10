@@ -1,6 +1,8 @@
+package products;
+
 import enums.Category;
 
-public abstract class Product {
+public abstract class Product implements Cloneable {
     private static int nextSerialNumber = 1;
 
     protected int serialNumber;
@@ -17,22 +19,19 @@ public abstract class Product {
         this.category = category;
     }
 
-    // Getter method to retrieve the serial number
+    // Getter methods
     public int getSerialNumber() {
         return serialNumber;
     }
 
-    // Getter method to retrieve the product name
     public String getName() {
         return name;
     }
 
-    // Getter method to retrieve the product price
     public double getPrice() {
         return price;
     }
 
-    // Getter method to retrieve the seller name
     public String getSellerName() {
         return sellerName;
     }
@@ -45,7 +44,12 @@ public abstract class Product {
 
     public abstract double getTotalCost();
 
-    // Override toString method to provide a string representation of the product
+    // Override the clone method to clone a product
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     @Override
     public String toString() {
         return "ID: " + serialNumber +

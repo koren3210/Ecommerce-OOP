@@ -1,3 +1,5 @@
+package products;
+
 import enums.Category;
 
 public class StandardProduct extends Product {
@@ -14,5 +16,10 @@ public class StandardProduct extends Product {
     @Override
     public String getDetails() {
         return toString();
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

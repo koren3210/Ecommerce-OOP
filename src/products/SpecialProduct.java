@@ -1,3 +1,5 @@
+package products;
+
 import enums.Category;
 
 public class SpecialProduct extends Product {
@@ -23,5 +25,10 @@ public class SpecialProduct extends Product {
         return super.toString() +
                 String.format(", Packaging Cost: %.2f$", packagingCost) +
                 String.format(", Total Cost: %.2f$", getTotalCost());
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
